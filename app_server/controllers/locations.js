@@ -1,5 +1,18 @@
-/* GET 'home' page */
-module.exports.homelist = function(req, res){
+var request = require('request');
+var apiOptions = {
+    server: "http://localhost:3000"
+};
+
+function renderHomepage(req, res, responseBody) {
+    var message;
+    if (!(responseBody instanceof Array)) {
+        message = "API lookup error";
+        responseBody = [];
+    } else {
+        if (!responseBody.length) {
+            message = "No places found nearby";
+        }
+    }
     res.render('locations-list', {
         title: 'Loc8r - find a place to work with wifi',
         pageHeader: {
@@ -7,26 +20,50 @@ module.exports.homelist = function(req, res){
             strapline: 'Find places to work with wifi near you!'
         },
         sidebar: "Looking for wifi and a seat? Loc8r helps you find places to work when out and about. Perhaps with coffee, cake or a pint? Let Loc8r help you find the place you're looking for.",
-        locations: [{
-            name: 'Starcups',
-            address: '125 High Street, Reading, RG6 1PS',
-            rating: 3,
-            facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-            distance: '100m'
-        },{
-            name: 'Cafe Hero',
-            address: '125 High Street, Reading, RG6 1PS',
-            rating: 4,
-            facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-            distance: '200m'
-        },{
-            name: 'Burger Queen',
-            address: '125 High Street, Reading, RG6 1PS',
-            rating: 2,
-            facilities: ['Food', 'Premium wifi'],
-            distance: '250m'
-        }]
+        locations: responseBody,
+        message: message
     });
+}
+
+var _formatDistance = function (distance) {
+    var numDistance;
+    var unit;
+    if (distance > 1) {
+        numDistance = parseFloat(distance).toFixed(1);
+        unit = 'km';
+    } else {
+        numDistance = parseInt(distance * 1000,10);
+        unit = 'm';
+    }
+    return numDistance + unit;
+};
+
+/* GET 'home' page */
+module.exports.homelist = function(req, res) {
+    var path = '/api/locations';
+    var requestOptions = {
+        url : apiOptions.server + path,
+        method : "GET",
+        json : {},
+        qs : {
+            lng : -0.7992599,
+            lat : 51.378091,
+            maxDistance : 20
+        }
+    };
+    request(
+        requestOptions,
+        function(err, response, body) {
+            var i;
+            var data = body;
+            if (response.statusCode === 200 && data.length) {
+                for (i = 0; i < data.length; i++) {
+                    data[i].distance = _formatDistance(data[i].distance);
+                }
+            }
+            renderHomepage(req, res, data);
+        }
+    );
 };
 
 /* GET 'Location info' page */
