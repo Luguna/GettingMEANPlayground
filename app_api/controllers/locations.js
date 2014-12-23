@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
 
+
 var theEarth = (function(){
     var earthRadius = 6371; // radius in km
 
@@ -11,11 +12,11 @@ var theEarth = (function(){
     var getRadsFromDistance = function(distance) {
         return parseFloat(distance / earthRadius);
     };
-
     return {
         getDistanceFromRads : getDistanceFromRads,
         getRadsFromDistance : getRadsFromDistance
     };
+
 })();
 
 var sendJsonResponse = function(res, status, content) {
@@ -24,7 +25,9 @@ var sendJsonResponse = function(res, status, content) {
     res.json(content);
 };
 
-// GET /api/locations
+/**
+ * GET /api/locations
+ */
 module.exports.locationsListByDistance = function(req, res) {
     var lng = parseFloat(req.query.lng);
     var lat = parseFloat(req.query.lat);
@@ -104,7 +107,9 @@ module.exports.locationsReadOne = function(req, res) {
     }
 };
 
-// POST /api/locations
+/**
+ * POST /api/locations
+ */
 module.exports.locationsCreate = function(req, res) {
     console.log(req.body);
     Loc.create({
@@ -134,7 +139,9 @@ module.exports.locationsCreate = function(req, res) {
     });
 };
 
-// PUT /api/locations/:locationid
+/**
+ * PUT /api/locations/:locationid
+ */
 module.exports.locationsUpdateOne = function(req, res) {
     if (!req.params.locationid) {
         sendJsonResponse(res, 404, {
@@ -182,7 +189,9 @@ module.exports.locationsUpdateOne = function(req, res) {
     );
 };
 
-// DELETE /api/locations/:locationid
+/**
+ * DELETE /api/locations/:locationid
+ */
 module.exports.locationsDeleteOne = function(req, res) {
     var locationid = req.params.locationid;
     if (locationid) {
@@ -206,7 +215,9 @@ module.exports.locationsDeleteOne = function(req, res) {
     }
 };
 
-// POST /api/locations/:locationid/reviews
+/**
+ * POST /api/locations/:locationid/reviews
+ */
 module.exports.reviewsCreate = function(req, res) {
     if (req.params.locationid) {
         Loc
@@ -287,7 +298,9 @@ var doSetAverageRating = function(location) {
     }
 };
 
-// PUT /api/locations/:locationid/reviews/:reviewid
+/**
+ * PUT /api/locations/:locationid/reviews/:reviewid
+ */
 module.exports.reviewsUpdateOne = function(req, res) {
     if (!req.params.locationid || !req.params.reviewid) {
         sendJsonResponse(res, 404, {
@@ -338,7 +351,9 @@ module.exports.reviewsUpdateOne = function(req, res) {
     );
 };
 
-// GET /api/locations/:locationid/reviews/:reviewid
+/**
+ * GET /api/locations/:locationid/reviews/:reviewid
+ */
 module.exports.reviewsReadOne = function(req, res) {
     console.log("Getting single review");
     if (req.params && req.params.locationid && req.params.reviewid) {
@@ -388,7 +403,9 @@ module.exports.reviewsReadOne = function(req, res) {
     }
 };
 
-// DELETE /api/locations/:locationid/reviews/:reviewid
+/**
+ * DELETE /api/locations/:locationid/reviews/:reviewid
+ */
 module.exports.reviewsDeleteOne = function(req, res) {
     if (!req.params.locationid || !req.params.reviewid) {
         sendJsonResponse(res, 404, {
