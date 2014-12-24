@@ -96,42 +96,84 @@ function _showError(req, res, statusCode) {
     });
 }
 
-/**
- * GET 'Location info' page
- */
-module.exports.locationInfo = function(req, res) {
+function getLocationInfo(req, res, callback) {
     var path = '/api/locations/' + req.params.locationid;
     var requestOptions = {
-        url : apiOptions.server + path,
-        method : "GET",
-        json : {}
+        url: apiOptions.server + path,
+        method: "GET",
+        json: {}
     };
     request(
         requestOptions,
-        function(err, response, body) {
-            var data= body;
+        function (err, response, body) {
+            var data = body;
             if (response.statusCode === 200) {
                 data.coords = {
                     lng: body.coords[0],
                     lat: body.coords[1]
                 };
-                renderDetailPage(req, res, data);
+                callback(req, res, data);
             } else {
                 _showError(req, res, response.statusCode);
             }
         }
     );
+}
+/**
+ * GET 'Location info' page
+ */
+module.exports.locationInfo = function(req, res) {
+    getLocationInfo(req, res, function(req, res, responseData) {
+        renderDetailPage(req, res, responseData);
+    });
 };
+
+function renderReviewForm(req, res, locDetail) {
+    res.render('location-review-form', {
+        title: 'Review ' + locDetail.name + ' on Loc8r',
+        pageHeader: {title: 'Review ' + locDetail.name},
+        user: {
+            displayName: "Chloe Bennet"
+        },
+        error: req.query.err
+    });
+}
 
 /**
  * GET 'Add review' page
  */
-module.exports.addReview = function(req, res){
-    res.render('location-review-form', {
-        title: 'Review Starcups on Loc8r',
-        pageHeader: { title: 'Review Starcups' },
-        user: {
-            displayName: "Simon Holmes"
-        }
+module.exports.addReview = function(req, res) {
+    getLocationInfo(req, res, function(req, res, responseData) {
+        renderReviewForm(req, res, responseData);
     });
+};
+
+/**
+ * POST 'Add review' page
+ */
+module.exports.doAddReview = function(req, res) {
+    var locationid = req.params.locationid;
+    var path = "/api/locations/" + locationid + '/reviews';
+    var postdata = {
+        author: req.body.name,
+        rating: parseInt(req.body.rating, 10),
+        reviewText: req.body.review
+    };
+    var requestOptions = {
+        url : apiOptions.server + path,
+        method : "POST",
+        json : postdata
+    };
+    request(
+        requestOptions,
+        function(err, response, body) {
+            if (response.statusCode === 201) {
+                res.redirect('/location/' + locationid);
+            } else if (response.statusCode === 400 && body.name && body.name === "ValidationError") {
+                res.redirect('/location/' + locationid + '/review/new?err=val');
+            } else {
+                    _showError(req, res, response.statusCode)
+            };
+        }
+    );
 };

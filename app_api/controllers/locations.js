@@ -245,9 +245,7 @@ var doAddReview = function(req, res, location) {
         sendJsonResponse(res, 404, "locationid not found");
     } else {
         location.reviews.push({
-            author: {
-                displayName: req.body.author
-            },
+            author: req.body.author,
             rating: req.body.rating,
             reviewText: req.body.reviewText
         });
@@ -330,7 +328,7 @@ module.exports.reviewsUpdateOne = function(req, res) {
                         "message": "reviewid not found"
                     });
                 } else {
-                    thisReview.author.displayName = req.body.author;
+                    thisReview.author = req.body.author;
                     thisReview.rating = req.body.rating;
                     thisReview.reviewText = req.body.reviewText;
                     location.save(function(err, location) {
