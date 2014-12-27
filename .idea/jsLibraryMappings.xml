@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="PROJECT" libraries="{Bootstrap v3.3.1, Node.js v0.10.33 Core Modules, node_modules}" />
+    <file url="PROJECT" libraries="{Angular.js v1.3.5, Bootstrap v3.3.1, Node.js v0.10.33 Core Modules, node_modules}" />
     <includedPredefinedLibrary name="Node.js Globals" />
   </component>
 </project>

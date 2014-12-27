@@ -3,69 +3,22 @@ var apiOptions = {
     server: "http://localhost:3000"
 };
 
-function renderHomepage(req, res, responseBody) {
-    var message;
-    if (!(responseBody instanceof Array)) {
-        message = "API lookup error";
-        responseBody = [];
-    } else {
-        if (!responseBody.length) {
-            message = "No places found nearby";
-        }
-    }
+function renderHomepage(req, res) {
     res.render('locations-list', {
         title: 'Loc8r - find a place to work with wifi',
         pageHeader: {
             title: 'Loc8r',
             strapline: 'Find places to work with wifi near you!'
         },
-        sidebar: "Looking for wifi and a seat? Loc8r helps you find places to work when out and about. Perhaps with coffee, cake or a pint? Let Loc8r help you find the place you're looking for.",
-        locations: responseBody,
-        message: message
+        sidebar: "Looking for wifi and a seat? Loc8r helps you find places to work when out and about. Perhaps with coffee, cake or a pint? Let Loc8r help you find the place you're looking for."
     });
 }
-
-var _formatDistance = function (distance) {
-    var numDistance;
-    var unit;
-    if (distance > 1) {
-        numDistance = parseFloat(distance).toFixed(1);
-        unit = 'km';
-    } else {
-        numDistance = parseInt(distance * 1000,10);
-        unit = 'm';
-    }
-    return numDistance + unit;
-};
 
 /**
  * GET 'home' page
  */
 module.exports.homelist = function(req, res) {
-    var path = '/api/locations';
-    var requestOptions = {
-        url : apiOptions.server + path,
-        method : "GET",
-        json : {},
-        qs : {
-            lng : -0.7992599,
-            lat : 51.378091,
-            maxDistance : 20
-        }
-    };
-    request(
-        requestOptions,
-        function(err, response, body) {
-            var i;
-            var data = body;
-            if (response.statusCode === 200 && data.length) {
-                for (i = 0; i < data.length; i++) {
-                    data[i].distance = _formatDistance(data[i].distance);
-                }
-            }
-            renderHomepage(req, res, data);
-        }
-    );
+    renderHomepage(req, res);
 };
 
 function renderDetailPage(req, res, locDetail) {
